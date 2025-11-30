@@ -7,4 +7,7 @@ module.exports = defineConfig({
     port: 8001,
     allowedHosts: "all",
   },
+  transpileDependencies: true,
+  publicPath: "/",
+  outputDir: "dist",
 });
