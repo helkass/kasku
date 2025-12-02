@@ -1,12 +1,23 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import MainLayout from "@/components/MainLayout.vue";
 import { useAuth } from "@/composables/useAuth";
+import PLogin from "@/pages/auth/PLogin.vue";
+import PDashboard from "@/pages/PDashboard.vue";
+import PUser from "@/pages/user/PUser.vue";
+import PFinance from "@/pages/finance/PFinance.vue";
+import PTransaction from "@/pages/transaction/PTransaction.vue";
+import MobileLayout from "@/components/MobileLayout.vue";
+import PHome from "@/pages/mobile/home/PHome.vue";
+import PWallet from "@/pages/mobile/wallet/PWallet.vue";
+import PTransactionMobile from "@/pages/mobile/transaction/PTransaction.vue";
+import PAccount from "@/pages/mobile/account/PAccount.vue";
+import PFinanceDetail from "@/pages/finance/PFinanceDetail.vue";
 
 const routes = [
   {
     path: "/login",
     name: "PLogin",
-    component: import("@/pages/auth/PLogin.vue"),
+    component: PLogin,
     meta: { guest: true },
   },
   // superadmin
@@ -19,25 +30,34 @@ const routes = [
       {
         path: "",
         name: "dashboard",
-        component: () => import("@/pages/PDashboard.vue"),
+        component: PDashboard,
         meta: { title: "Dashboard", requiresAuth: true },
       },
       {
         path: "/users",
         name: "users",
-        component: () => import("@/pages/user/PUser.vue"),
+        component: PUser,
         meta: { title: "Pengguna", requiresAuth: true },
       },
+      // finance routes
       {
         path: "/finances",
         name: "finances",
-        component: () => import("@/pages/finance/PFinance.vue"),
+        component: PFinance,
         meta: { title: "Dompet Keuangan", requiresAuth: true },
       },
       {
+        path: "/finances/:id",
+        name: "finances-detail",
+        component: PFinanceDetail,
+        props: true,
+        meta: { title: "Detail Dompet Keuangan", requiresAuth: true },
+      },
+      // transaction routes
+      {
         path: "/transactions",
         name: "transactions",
-        component: () => import("@/pages/transaction/PTransaction.vue"),
+        component: PTransaction,
         meta: { title: "Transaksi", requiresAuth: true },
       },
     ],
@@ -46,36 +66,36 @@ const routes = [
   {
     path: "/m",
     name: "MobileLayout",
-    component: () => import("@/components/MobileLayout.vue"),
+    component: MobileLayout,
     children: [
       {
         path: "", // path: "/m"
         name: "mobile-home",
-        component: () => import("@/pages/mobile/home/PHome.vue"),
+        component: PHome,
         meta: { title: "Dashboard", requiresAuth: true },
       },
       {
         path: "home",
         name: "home",
-        component: () => import("@/pages/mobile/home/PHome.vue"),
+        component: PHome,
         meta: { title: "Dashboard", requiresAuth: true },
       },
       {
         path: "wallets",
         name: "wallet",
-        component: () => import("@/pages/mobile/wallet/PWallet.vue"),
+        component: PWallet,
         meta: { title: "Dompet", requiresAuth: true },
       },
       {
         path: "transactions",
         name: "transaction",
-        component: () => import("@/pages/mobile/transaction/PTransaction.vue"),
+        component: PTransactionMobile,
         meta: { title: "Transaksi", requiresAuth: true },
       },
       {
         path: "account",
         name: "account",
-        component: () => import("@/pages/mobile/account/PAccount.vue"),
+        component: PAccount,
         meta: { title: "Akun", requiresAuth: true },
       },
     ],
@@ -83,11 +103,13 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory("/helka/"),
   routes,
 });
 
 router.beforeEach(async (to, from, next) => {
+  document.title = to.meta.title ? `${to.meta.title} | KASKU` : "KASKU App";
+
   const { getUser, user } = useAuth();
   const token = localStorage.getItem("token");
 

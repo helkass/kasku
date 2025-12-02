@@ -380,11 +380,7 @@
   </n-modal>
 
   <!-- modal detail transaction -->
-  <n-modal
-    class="mx-2"
-    style="max-height: 90vh"
-    v-model:show="showModalDetailTransaction"
-  >
+  <n-modal style="max-height: 90vh" v-model:show="showModalDetailTransaction">
     <n-card
       style="max-width: 800px"
       title="Detail Transaksi"
@@ -392,6 +388,7 @@
       size="medium"
       role="dialog"
       aria-modal="true"
+      class="mx-auto mx-2"
     >
       <template #header>
         <div class="flex items-center gap-2">
@@ -757,11 +754,11 @@ const groupedTransactions = computed(() => {
 const summary = computed(() => {
   const pemasukan = transactions.value
     .filter((t) => t.type === "pemasukan")
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => Number(sum) + Number(t.amount), 0);
 
   const pengeluaran = transactions.value
     .filter((t) => t.type === "pengeluaran")
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => Number(sum) + Number(t.amount), 0);
 
   return { pemasukan, pengeluaran };
 });
@@ -924,7 +921,7 @@ const viewTransactionDetail = async (id) => {
   loadingModalDetail.value = true;
 
   try {
-    await getTransactionById(id);
+    await getTransactionById(`/${id}`);
     if (response.value.success) {
       detailTransaction.value = response.value.transaction;
     } else {
@@ -1025,7 +1022,7 @@ const handleDeleteTransaction = async (id) => {
     draggable: true,
     onPositiveClick: async () => {
       try {
-        await deleteTransaction(id);
+        await deleteTransaction(`/${id}`);
         if (response.value.success) {
           message.success(
             response.value.message || "Berhasil menghapus data transaksi"

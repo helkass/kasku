@@ -1,28 +1,44 @@
 <template>
-  <div class="min-h-screen p-4">
+  <div class="min-h-screen p-4 mb-3">
     <!-- Quick Stats -->
     <div class="grid grid-cols-3 gap-3 mb-6">
       <n-card class="bg-white rounded-2xl border-0 shadow-sm">
-        <div class="text-center">
-          <div class="text-xs text-gray-500 mb-1">Saldo</div>
+        <div class="text-center flex justify-center items-center flex-col">
+          <div class="flex items-center justify-center mx-auto mb-2">
+            <n-icon size="32" class="text-blue-600">
+              <WalletOutline />
+            </n-icon>
+          </div>
           <n-spin v-if="fetchFinance.loading.value" size="small" />
           <n-text v-else class="text-sm font-bold text-gray-800">
             {{ formatCurrencySimple(totalMountFinance) }}
           </n-text>
         </div>
       </n-card>
-      <n-card class="bg-white rounded-2xl border-0 shadow-sm">
-        <div class="text-center">
-          <div class="text-xs text-gray-500 mb-1">Pengeluaran</div>
+      <div
+        class="bg-white rounded-2xl border-0 shadow-sm flex justify-center items-center"
+        style="padding: 0"
+      >
+        <div class="text-center flex justify-center items-center flex-col">
+          <!-- <div class="text-xs text-gray-500 mb-1">Pengeluaran</div> -->
+          <div class="flex items-center justify-center mx-auto mb-2">
+            <n-icon size="32" class="text-red-600">
+              <TrendingDownOutline />
+            </n-icon>
+          </div>
           <n-spin v-if="fetchFinance.loading.value" size="small" />
           <n-text v-else class="text-sm font-bold text-red-500">
             {{ formatCurrencySimple(totalIncomeExpanse.expanse) }}
           </n-text>
         </div>
-      </n-card>
+      </div>
       <n-card class="bg-white rounded-2xl border-0 shadow-sm">
-        <div class="text-center">
-          <div class="text-xs text-gray-500 mb-1">Pemasukan</div>
+        <div class="text-center flex justify-center items-center flex-col">
+          <div class="flex items-center justify-center mx-auto mb-2">
+            <n-icon size="32" class="text-emerald-600">
+              <TrendingUpOutline />
+            </n-icon>
+          </div>
           <n-spin v-if="fetchFinance.loading.value" size="small" />
           <n-text v-else class="text-sm font-bold text-green-500">
             {{ formatCurrencySimple(totalIncomeExpanse.income) }}
@@ -41,7 +57,7 @@
               class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-2"
             >
               <n-icon size="24" class="text-blue-600">
-                <SendIcon />
+                <NavigateOutline />
               </n-icon>
             </div>
             <div class="text-xs font-medium text-gray-700">Transfer</div>
@@ -310,11 +326,7 @@
   </div>
 
   <!-- modal detail transaction -->
-  <n-modal
-    class="mx-2"
-    style="max-height: 90vh"
-    v-model:show="showModalDetailTransaction"
-  >
+  <n-modal style="max-height: 90vh" v-model:show="showModalDetailTransaction">
     <n-card
       style="max-width: 800px"
       title="Detail Transaksi"
@@ -322,6 +334,7 @@
       size="medium"
       role="dialog"
       aria-modal="true"
+      class="mx-auto mt-2"
     >
       <template #header>
         <div class="flex items-center gap-2">
@@ -523,6 +536,9 @@ import {
   EllipsisHorizontalOutline,
   WalletOutline,
   FileTrayOutline,
+  NavigateOutline,
+  TrendingDownOutline,
+  TrendingUpOutline,
 } from "@vicons/ionicons5";
 import { useRouter } from "vue-router";
 import { useTransaction } from "@/composables/useTransaction";
@@ -783,7 +799,7 @@ const viewTransactionDetail = async (id) => {
   loadingModalDetail.value = true;
 
   try {
-    await getTransactionById(id);
+    await getTransactionById(`/${id}`);
     if (response.value.success) {
       detailTransaction.value = response.value.transaction;
     } else {

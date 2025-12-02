@@ -113,8 +113,8 @@ const activeKey = ref(route.name);
 
 // User data
 const user = ref({
-  name: "John Doe",
-  email: "john.doe@example.com",
+  name: "Superadmin",
+  email: "superadmin@kasku.com",
 });
 
 const renderIcon = (icon) => {

@@ -5,13 +5,13 @@ export function useFinance() {
   const finances = ref([]);
   const loading = ref(false);
   const total = ref(0);
-  const endpoint = "finances/";
+  const endpoint = "finances";
   const response = ref(null);
 
   const fetchFinances = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.get(endpoint, { params });
+      const res = await api.get(endpoint, params);
       finances.value = res.data.finances;
       total.value = res.data.total; // atau total dari API
     } finally {
@@ -42,7 +42,7 @@ export function useFinance() {
   const selectFinances = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.get(endpoint + `select`, { params });
+      const res = await api.get(endpoint + `/select`, { params });
       response.value = res.data;
     } finally {
       loading.value = false;
@@ -62,7 +62,7 @@ export function useFinance() {
   const getCount = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.get(endpoint + `count`, { params });
+      const res = await api.get(endpoint + `/count`, { params });
       response.value = res.data;
     } finally {
       loading.value = false;
@@ -72,7 +72,7 @@ export function useFinance() {
   const getTotalFinance = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.post(endpoint + `total-finance`, { params });
+      const res = await api.post(endpoint + `/total-finance`, { params });
       response.value = res.data;
     } finally {
       loading.value = false;
@@ -82,7 +82,7 @@ export function useFinance() {
   const getIncomeExpanse = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.post(endpoint + `total-income-expanse`, params);
+      const res = await api.post(endpoint + `/total-income-expanse`, params);
       response.value = res.data;
     } finally {
       loading.value = false;
@@ -91,7 +91,7 @@ export function useFinance() {
 
   const getFinanceDailyExpenses = async () => {
     try {
-      const res = await api.post(endpoint + `expanses`);
+      const res = await api.post(endpoint + `/expanses`);
       response.value = res.data;
     } finally {
       loading.value = false;

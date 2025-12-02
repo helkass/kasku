@@ -8,6 +8,6 @@ module.exports = defineConfig({
     allowedHosts: "all",
   },
   transpileDependencies: true,
-  publicPath: "/",
+  publicPath: "/helka/",
   outputDir: "dist",
 });

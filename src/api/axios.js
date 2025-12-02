@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://re-teech.my.id/helka/api", // URL API Laravel kamu
+  baseURL: "https://re-teech.my.id/helka/backend/api",
+  // baseURL: "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },

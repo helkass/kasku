@@ -419,21 +419,20 @@ const columns = [
   {
     title: "Aksi",
     render: (row) => {
-      return h(
-        "div",
-        {
-          class: "flex gap-1",
-        },
-        [
-          h(
-            NButton,
-            {
-              size: "small",
-              type: "info",
-              onClick: () => handleDetailTransaction(row.id),
-            },
-            { default: () => h(NIcon, { component: EyeOutline }) }
-          ),
+      const children = [
+        h(
+          NButton,
+          {
+            size: "small",
+            type: "info",
+            onClick: () => handleDetailTransaction(row.id),
+          },
+          { default: () => h(NIcon, { component: EyeOutline }) }
+        ),
+      ];
+
+      if (Number(row.can_deleted) === 1) {
+        children.push(
           h(
             NButton,
             {
@@ -444,9 +443,11 @@ const columns = [
             {
               default: () => h(NIcon, { component: TrashOutline }),
             }
-          ),
-        ]
-      );
+          )
+        );
+      }
+
+      return children;
     },
   },
 ];
@@ -459,7 +460,7 @@ const handleDetailTransaction = async (id) => {
   showModalDetailTransaction.value = true;
 
   try {
-    await fetchTransactions.getTransactionById(id);
+    await fetchTransactions.getTransactionById(`/${id}`);
     if (fetchTransactions.response.value.success) {
       detailTransaction.value = fetchTransactions.response.value.transaction;
     } else {

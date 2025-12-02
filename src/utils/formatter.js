@@ -56,3 +56,16 @@ export function formatCurrencySimple(amount) {
 export const formatCurrency = (amount) => {
   return new Intl.NumberFormat("id-ID").format(amount);
 };
+
+export const timeAgo = (date) => {
+  const now = new Date();
+  const past = new Date(date);
+  const diff = now - past;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (days > 0) return `${days} hari lalu`;
+  if (hours > 0) return `${hours} jam lalu`;
+  return `${minutes} menit lalu`;
+};

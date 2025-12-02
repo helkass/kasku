@@ -5,7 +5,7 @@ export function useUser() {
   const users = ref([]);
   const loading = ref(false);
   const total = ref(0);
-  const endpoint = "users/";
+  const endpoint = "users";
   const response = ref(null);
 
   const fetchUsers = async (params = {}) => {
@@ -54,7 +54,7 @@ export function useUser() {
   const selectUsers = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.get(endpoint + `select`, { params });
+      const res = await api.get(endpoint + `/select`, { params });
       response.value = res.data.results;
     } finally {
       loading.value = false;
@@ -64,7 +64,7 @@ export function useUser() {
   const getCount = async (params = {}) => {
     loading.value = true;
     try {
-      const res = await api.get(endpoint + `count`, { params });
+      const res = await api.get(endpoint + `/count`, { params });
       response.value = res.data;
     } finally {
       loading.value = false;

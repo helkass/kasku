@@ -5,7 +5,7 @@ export function useFinanceHistory() {
   const financeHistories = ref([]);
   const loading = ref(false);
   const total = ref(0);
-  const endpoint = "finance-histories/";
+  const endpoint = "finance-histories";
   const response = ref(null);
 
   const fetchFinanceHistories = async (params = {}) => {

@@ -42,6 +42,29 @@
 
     <!-- Recent Activity -->
     <n-card title="Daftar Dompet">
+      <div class="mb-2 w-full flex justify-between items-center">
+        <div class="w-full max-w-44">
+          <n-input
+            v-model:value="activeFilter.search"
+            @update:value="handleSearch"
+            placeholder="Cari..."
+            clearable
+          >
+            <template #prefix>
+              <n-icon :component="SearchOutline" />
+            </template>
+          </n-input>
+        </div>
+
+        <n-button
+          :disabled="loading"
+          type="primary"
+          @click="showModalCreateFinance = true"
+        >
+          Buat Dompet
+        </n-button>
+      </div>
+
       <div v-if="loading">
         <n-skeleton text :repeat="4" />
       </div>
@@ -57,29 +80,6 @@
       </div>
 
       <div v-else>
-        <div class="mb-2 w-full flex justify-between items-center">
-          <div class="w-full max-w-44">
-            <n-input
-              v-model:value="activeFilter.search"
-              @update:value="handleSearch"
-              placeholder="Cari..."
-              clearable
-            >
-              <template #prefix>
-                <n-icon :component="SearchOutline" />
-              </template>
-            </n-input>
-          </div>
-
-          <n-button
-            :disabled="loading"
-            type="primary"
-            @click="showModalCreateFinance = true"
-          >
-            Buat Dompet
-          </n-button>
-        </div>
-
         <n-data-table
           :bordered="false"
           :columns="columns"
@@ -145,16 +145,22 @@
         </n-form-item>
 
         <n-form-item
-          label="Jumlah"
-          path="amount"
           :feedback="formErrors.amount"
           :status="formErrors.amount ? 'error' : undefined"
+          label="Nominal"
+          path="amount"
         >
-          <n-input
+          <n-input-number
             v-model:value="formFinance.amount"
-            type="number"
-            placeholder="100,000"
-          />
+            :min="0"
+            class="w-full"
+            placeholder="0"
+          >
+            <template #prefix>
+              <span class="text-gray-500">Rp</span>
+            </template>
+          </n-input-number>
+
           <template #feedback>
             <span
               v-if="formErrors.amount"
@@ -166,15 +172,22 @@
         </n-form-item>
 
         <n-form-item
+          :feedback="formErrors.daily_limit"
+          :status="formErrors.daily_limit ? 'error' : undefined"
           label="Batas per hari"
           path="daily_limit"
-          :status="formErrors.daily_limit ? 'error' : undefined"
         >
-          <n-input
+          <n-input-number
             v-model:value="formFinance.daily_limit"
-            type="number"
-            placeholder="10,000"
-          />
+            :min="0"
+            class="w-full"
+            placeholder="0"
+          >
+            <template #prefix>
+              <span class="text-gray-500">Rp</span>
+            </template>
+          </n-input-number>
+
           <template #feedback>
             <span
               v-if="formErrors.daily_limit"
@@ -230,7 +243,7 @@
 
 <script setup>
 import { ref, onMounted, h, computed, reactive } from "vue";
-import { useMessage, NButton, NAlert, NIcon } from "naive-ui";
+import { useMessage, NButton, NAlert, NIcon, useDialog } from "naive-ui";
 import { useFinance } from "@/composables/useFinance";
 import { useUser } from "@/composables/useUser";
 import { EyeOutline, SearchOutline, TrashOutline } from "@vicons/ionicons5";
@@ -246,6 +259,7 @@ const selectLoading = ref(false);
 // Initialize composables
 const fetchFinance = useFinance();
 const fetchUser = useUser();
+const dialog = useDialog();
 
 // Date Range Filter
 const dateRange = ref(null);
@@ -331,7 +345,7 @@ const columns = [
           h(
             RouterLink,
             {
-              to: `/finances/history/`,
+              to: `/finances/${row.finance_unique}`,
             },
             {
               default: () =>
@@ -353,7 +367,7 @@ const columns = [
             {
               size: "small",
               type: "error",
-              //   onClick: () => handleDelete(row),
+              onClick: () => handleDeleteFinance(row.id),
             },
             {
               default: () => h(NIcon, { component: TrashOutline }),
@@ -597,6 +611,38 @@ const handleCreateFinance = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleDeleteFinance = async (id) => {
+  const dialogDeleteInstance = dialog.error({
+    title: "Konfirmasi",
+    content:
+      "Apakah anda yakin ingin menhapus data dompet ini?, semua data terkait dompet ini akan ikut terhapus.",
+    positiveText: "Ya, hapus",
+    negativeText: "Batal",
+    draggable: true,
+    loading: false,
+    onPositiveClick: async () => {
+      try {
+        dialogDeleteInstance.loading = true;
+        dialogDeleteInstance.closable = false;
+
+        await fetchFinance.deleteFinance(`/${id}`);
+        if (fetchFinance.response.value.success) {
+          message.success(
+            fetchFinance.response.value.message ||
+              "Berhasil menghapus data transaksi"
+          );
+          await refreshData();
+        }
+      } catch (error) {
+        message.error(error.response?.data?.message || "Terjadi kesalahan");
+      }
+      dialogDeleteInstance.closable = true;
+      dialogDeleteInstance.loading = true;
+    },
+    onNegativeClick: () => {},
+  });
 };
 </script>
 

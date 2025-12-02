@@ -241,7 +241,7 @@ const formValue = ref({
 // Computed
 const totalBalance = computed(() => {
   return finances.value.reduce(
-    (total, wallet) => total + (wallet.amount || 0),
+    (total, wallet) => Number(total) + (Number(wallet.amount) || 0),
     0
   );
 });
