@@ -174,6 +174,18 @@ const columns = [
     },
   },
   {
+    title: "Pengguna",
+    render: (row) => {
+      return h(
+        "span",
+        {
+          class: "capitalize",
+        },
+        row.user.username
+      );
+    },
+  },
+  {
     title: "Jumlah",
     key: "amount",
     render: (row) => {
@@ -208,24 +220,7 @@ const columns = [
       );
     },
   },
-  {
-    title: "Aksi",
-    render: (row) => {
-      return h(
-        NButton,
-        {
-          size: "small",
-          onClick: () => handleViewDetail(row),
-        },
-        { default: () => "Detail" }
-      );
-    },
-  },
 ];
-
-const handleViewDetail = (rowData) => {
-  message.info(`Detail transaksi: ${rowData.title}`);
-};
 
 // Date Filter Functions
 const applyDateFilter = async () => {

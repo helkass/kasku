@@ -42,6 +42,19 @@
 
     <!-- Recent Activity -->
     <n-card title="Daftar Pengguna">
+      <div class="mb-2 w-max">
+        <n-input
+          v-model:value="activeFilter.search"
+          @update:value="handleSearch"
+          placeholder="Cari..."
+          clearable
+        >
+          <template #prefix>
+            <n-icon :component="SearchOutline" />
+          </template>
+        </n-input>
+      </div>
+
       <div v-if="loading">
         <n-skeleton text :repeat="4" />
       </div>
@@ -57,19 +70,6 @@
       </div>
 
       <div v-else>
-        <div class="mb-2 w-max">
-          <n-input
-            v-model:value="activeFilter.search"
-            @update:value="handleSearch"
-            placeholder="Cari..."
-            clearable
-          >
-            <template #prefix>
-              <n-icon :component="SearchOutline" />
-            </template>
-          </n-input>
-        </div>
-
         <n-data-table
           :bordered="false"
           :columns="columns"
@@ -83,12 +83,14 @@
 
 <script setup>
 import { ref, onMounted, h, computed } from "vue";
-import { useMessage, NButton, NAlert } from "naive-ui";
+import { useMessage, NButton, NAlert, useDialog } from "naive-ui";
 import { useUser } from "@/composables/useUser";
 import { SearchOutline } from "@vicons/ionicons5";
 import { debounce } from "lodash-es";
+import { formatCurrency } from "@/utils/formatter";
 const message = useMessage();
 const loading = ref(true);
+const dialog = useDialog();
 
 // Initialize composables
 const fetchUser = useUser();
@@ -152,22 +154,73 @@ const columns = [
     },
   },
   {
-    title: "Aksi",
+    title: "Total Saldo",
+    ellipsis: {
+      tooltip: true,
+    },
+    render: (data) => {
+      return data.finances_sum_amount
+        ? formatCurrency(data.finances_sum_amount)
+        : 0;
+    },
+  },
+  {
+    title: "Total Dompet",
+    ellipsis: {
+      tooltip: true,
+    },
+    render: (data) => {
+      return formatCurrency(data.finances_count);
+    },
+  },
+  {
+    title: "",
     render: (row) => {
       return h(
         NButton,
         {
           size: "small",
-          onClick: () => handleViewDetail(row),
+          type: "error",
+          onClick: () => {
+            handleDeleteUser(row.id);
+          },
         },
-        { default: () => "Detail" }
+        { default: () => "hapus" }
       );
     },
   },
 ];
 
-const handleViewDetail = (rowData) => {
-  message.info(`Detail pengguna: ${rowData.username}`);
+const handleDeleteUser = async (id) => {
+  const dialogDeleteInstance = dialog.error({
+    title: "Konfirmasi",
+    content:
+      "Apakah anda yakin ingin menhapus data pengguna ini?, semua data terkait pengguna ini akan ikut terhapus.",
+    positiveText: "Ya, hapus",
+    negativeText: "Batal",
+    draggable: true,
+    loading: false,
+    onPositiveClick: async () => {
+      try {
+        dialogDeleteInstance.loading = true;
+        dialogDeleteInstance.closable = false;
+
+        await fetchUser.deleteUser(`/${id}`);
+        if (fetchUser.response.value.success) {
+          message.success(
+            fetchUser.response.value.message ||
+              "Berhasil menghapus data pengguna"
+          );
+          await refreshData();
+        }
+      } catch (error) {
+        message.error(error.response?.data?.message || "Terjadi kesalahan");
+      }
+      dialogDeleteInstance.closable = true;
+      dialogDeleteInstance.loading = true;
+    },
+    onNegativeClick: () => {},
+  });
 };
 
 const handleSearch = debounce(async (searchValue) => {
