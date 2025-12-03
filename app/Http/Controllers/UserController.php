@@ -22,7 +22,7 @@ class UserController extends Controller
         $start_at = $request->get('start_at');
         $end_at = $request->get('end_at');
 
-        $query = User::query();
+        $query = User::with('finances');
 
         if ($search) {
             $query->where('username', 'LIKE', "%{$search}%");
@@ -39,12 +39,14 @@ class UserController extends Controller
         // sembunyikan role superadmin
         $query->whereNotIn('role', ['superadmin']);
 
-        $users = $query->orderBy('created_at', 'DESC')->paginate($perPage);
+        $users = $query->withCount('finances')->withSum('finances', 'amount')->orderBy('created_at', 'DESC')->paginate($perPage);
+
+        $total_users = $users->items();
 
         return response()->json([
             'success' => true,
             'message' => 'Berhasil mengambil data pengguna',
-            'users' => $users->items(),
+            'users' => $total_users,
             'total' => $users->total()
         ], 200);
     }
